@@ -4,29 +4,26 @@ import { gameDetailsURL, gameScreenShotURL } from "../api";
 export const loadDetail =(id)=> async(dispatch)=>{
     dispatch(
         {
-            type:"LODING_DETAIL"
+            type:"LOADING_DETAIL"
         }
     )
     try{
-
-        const detailData = await axios.get(gameDetailsURL(id))
-        const screenShotData = await axios.get(gameScreenShotURL(id))
+        const [detailData, screenShotData] = await Promise.all([
+            axios.get(gameDetailsURL(id)),
+            axios.get(gameScreenShotURL(id)),
+        ])
 
         dispatch({
             type:"GET_DETAIL",
             payload:{
                 game: detailData?.data,
                 screen: screenShotData?.data,
-
             }
         })
-
-
-
-
-
     }catch (error) {
-        console.error('Load detail has enconter an error: ',error.message)
-
+        dispatch({
+            type:"DETAIL_FAILED",
+            payload:{ error:"Game details could not be loaded." }
+        })
     }
 }

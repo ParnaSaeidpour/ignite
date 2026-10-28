@@ -1,6 +1,7 @@
 import React,{useEffect} from "react";
 import { useDispatch,useSelector } from "react-redux";
 import { loadGames } from "../actions/gamesAction";
+import { loadDetail } from "../actions/detailAction";
 import GameDetail from "../components/GameDetail";
 
 //components
@@ -21,14 +22,22 @@ const Home=()=>{
       dispatch(loadGames())
     },[dispatch]);
 
+    // Load the game details from the URL, so /game/:id also works after a reload
+    useEffect(()=>{
+      if(pathId){
+        dispatch(loadDetail(pathId))
+      }
+    },[dispatch, pathId]);
+
 // Get that data back
-    const {popular,newGames,upcoming,searched}=useSelector((state)=> state.games);
+    const {popular,newGames,upcoming,searched,error}=useSelector((state)=> state.games);
     
 
 
     return(
         <div className="pt-0 pb-0 pl-20 pr-20">
             {pathId && <GameDetail pathId={pathId}/>}
+            {error && <p role="alert" className="mt-10 p-4 rounded-md bg-red-100 text-red-800">{error}</p>}
             {searched.length ?(
             <div>
                 <h2 className="xl:font-mono font-bold text-4xl pt-20 pb-20 pl-0 pr-0 my_text_red">Searched Games</h2>
