@@ -1,7 +1,8 @@
 const initState ={
     game:{platforms:[]},
     screen:{results:[]},
-    isLoading:true
+    isLoading:true,
+    error:"",
 }
 
 
@@ -14,14 +15,20 @@ const detailReducer =(state=initState, action)=>{
                 game: action.payload.game,
                 screen: action.payload.screen,
                 isLoading:false,
-
+                error:"",
             }
-        case "LODING_DETAIL":
+        case "LOADING_DETAIL":
             return{
                 ...state,
                 isLoading:true,
+                error:"",
             }
-
+        case "DETAIL_FAILED":
+            return{
+                ...state,
+                isLoading:false,
+                error:action.payload.error,
+            }
 
         default:
             return{...state}

@@ -50,13 +50,15 @@ const GameDetail=()=>{
     // Get Platform Images 
     const getPlatform =(platform)=>{
         switch(platform){
-            case "playstation 4":
+            case "PlayStation 5":
+            case "PlayStation 4":
                 return playstation;
+            case "Xbox Series S/X":
             case "Xbox One":
                 return xbox;
             case "PC":
                 return steam
-            case "Nintrndo Switch":
+            case "Nintendo Switch":
                 return nintendo;
             case "iOS":
                 return apple;
@@ -65,10 +67,11 @@ const GameDetail=()=>{
     }}
     //Data
 
-    const {game, screen,isLoading} =useSelector(state => state.detail)
+    const {game, screen,isLoading,error} =useSelector(state => state.detail)
     return(
         <>
-        {!isLoading &&(
+        {error && <p role="alert" className="mt-10 p-4 rounded-md bg-red-100 text-red-800">{error}</p>}
+        {!isLoading && !error &&(
         <div onClick={exitDetailHandler} className=" drop-shadow-md shadow-inner fixed overflow-y-scroll w-full min-h-full top-0 left-0 overflow-hidden ">
             <div className="bg-white  max-w-7xl rounded-2xl left-5 absolute pl-20 pr-20 cursor-pointer" >
                 <div className="flex items-center justify-between">

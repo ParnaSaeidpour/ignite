@@ -7,38 +7,41 @@ import {popularGamesURL,upcomingGamesURL,newGamesURL,searchGameURL} from '../api
 
 export const loadGames =()=> async(dispatch)=>{
     try {
-        
-        const popularData= await axios.get(popularGamesURL());
-        const newGamesData= await axios.get(newGamesURL());
-        const upcomingData= await axios.get(upcomingGamesURL());
+        const [popularData, newGamesData, upcomingData] = await Promise.all([
+            axios.get(popularGamesURL()),
+            axios.get(newGamesURL()),
+            axios.get(upcomingGamesURL()),
+        ])
         dispatch({
             type: "FETCH_GAMES",
             payload:{
-                popular:popularData?.data?.results,
-                upcoming:upcomingData?.data?.results,
-                newGames: newGamesData?.data?.results,
+                popular:popularData?.data?.results || [],
+                upcoming:upcomingData?.data?.results || [],
+                newGames: newGamesData?.data?.results || [],
             }
         })
     } catch (error) {
-        console.error('Load games has enconter an error: ',error.message)
+        dispatch({
+            type: "FETCH_GAMES_FAILED",
+            payload: { error: "Games could not be loaded. Check your RAWG API key in .env." }
+        })
     }
-        
-    
 }
 
 export const fetchSearch =(game_name)=> async(dispatch)=>{
-
-
+    try {
         const searchGames= await axios.get(searchGameURL(game_name))
 
         dispatch({
             type: "FETCH_SEARCHED",
             payload:{
-                searched: searchGames?.data?.results,
-
+                searched: searchGames?.data?.results || [],
             }
         })
-
-   
-
+    } catch (error) {
+        dispatch({
+            type: "FETCH_GAMES_FAILED",
+            payload: { error: "Search failed. Please try again." }
+        })
+    }
 }
