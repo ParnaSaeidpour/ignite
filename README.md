@@ -1,70 +1,107 @@
-# Getting Started with Create React App
+# Ignite – Video Game Browser
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React + Redux app for discovering video games. It shows upcoming, popular and new games, lets you search the whole RAWG catalogue, and opens a detail view with rating, platforms, description and screenshots. Game data comes from the [RAWG Video Games Database API](https://rawg.io/apidocs).
 
-## Available Scripts
+> Built in December 2022 – January 2023. Updated in October 2026 with environment-based configuration, tests and CI.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Upcoming games** (next 12 months), **popular games** (highest rated in the last 12 months) and **new releases**
+- **Search** across the RAWG catalogue
+- **Game detail view** with star rating, platform icons, description and screenshots
+- Shareable game links: `/game/:id` loads the game directly
+- Responsive grid layout with Tailwind CSS
+- Clear messages when the API key is missing or a request fails
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Tech stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| Area | Technology |
+|---|---|
+| UI | React 18, React Router 6, Tailwind CSS |
+| State | Redux Toolkit, Redux Thunk |
+| HTTP | Axios |
+| Tooling | Create React App |
+| Tests | Jest, React Testing Library |
+| CI | GitHub Actions |
 
-### `npm test`
+## How it works
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+Home page (/)
+├── loadGames()      ──► 3 RAWG requests in parallel: upcoming, popular, new
+├── Nav search       ──► fetchSearch(text) ──► RAWG ?search=
+└── /game/:id        ──► loadDetail(id)    ──► game details + screenshots
 
-### `npm run build`
+Redux store
+├── games   { popular, upcoming, newGames, searched, error }
+└── detail  { game, screen, isLoading, error }
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+src/api.js    builds the RAWG URLs and adds the API key from .env
+src/util.js   requests smaller image sizes from RAWG
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Getting started
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Prerequisites
 
-### `npm run eject`
+- Node.js 18+
+- A free RAWG API key: sign up at [rawg.io/apidocs](https://rawg.io/apidocs) and copy your key
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Setup
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+git clone https://github.com/ParnaSaeidpour/ignite.git
+cd ignite
+npm install
+cp .env.example .env   # then put your key in REACT_APP_RAWG_API_KEY
+npm start              # http://localhost:3000
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Environment variables
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+| Variable | Purpose |
+|---|---|
+| `REACT_APP_RAWG_API_KEY` | Your RAWG API key |
 
-## Learn More
+`.env` is in `.gitignore`, so your key is never committed.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+**Note:** this is a frontend-only app. Create React App includes `REACT_APP_*` variables in the JavaScript sent to the browser, so anyone using a deployed version can see the key. Use a free key only. To fully hide a key you would need a small backend that calls RAWG for the app.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Scripts
 
-### Code Splitting
+| Command | What it does |
+|---|---|
+| `npm start` | Start the development server |
+| `npm test` | Run the tests (watch mode; add `-- --watchAll=false` to run once) |
+| `npm run build` | Build for production into `build/` |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Tests
 
-### Analyzing the Bundle Size
+```bash
+npm test -- --watchAll=false
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- `src/__tests__/api.test.js`: API key from the environment, search text encoding, date ranges
+- `src/__tests__/util.test.js`: image resizing, games without an image
+- `src/__tests__/reducers.test.js`: Redux state updates
+- `src/__tests__/App.test.js`: the whole app with the RAWG API replaced by test data (no key or network needed): game lists, search, opening a game link directly, and the error message
 
-### Making a Progressive Web App
+GitHub Actions runs the tests and a production build on every push and pull request.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Project structure
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+src/
+├── api.js                 # RAWG URLs
+├── util.js                # image helper
+├── actions/
+│   ├── gamesAction.js     # loadGames, fetchSearch
+│   └── detailAction.js    # loadDetail
+├── reducers/              # games and detail state
+├── components/
+│   ├── Nav.js             # logo and search
+│   ├── Game.js            # game card
+│   └── GameDetail.js      # detail view
+├── pages/Home.js          # game lists and detail routing
+└── __tests__/             # Jest tests
+```
